@@ -18,7 +18,6 @@
 
 <script>
 import P5 from "p5";
-import game from "./output.json";
 
 export default {
   data() {
@@ -86,23 +85,57 @@ export default {
           canvas.parent("p5Canvas");
           p5.frameRate(30);
         };
-        function drawUi() {
+
+        function drawUi(turn, leng, pause, sides) {
           p5.noStroke();
-          const gr = p5.color(200, 200, 200);
-          p5.fill(gr);
-          p5.rect(0, 0, canvasSize / 8, canvasSize);
-          p5.rect((canvasSize * 7) / 8, 0, canvasSize / 8, canvasSize);
-          p5.rect(
-            canvasSize / 8,
-            (canvasSize * 6) / 8,
-            (canvasSize * 6) / 8,
-            canvasSize / 4
-          );
+          if (sides) {
+            const gr = p5.color(200, 200, 200);
+            p5.fill(gr);
+            p5.rect(0, 0, canvasSize / 8, canvasSize);
+            p5.rect((canvasSize * 7) / 8, 0, canvasSize / 8, canvasSize);
+            p5.rect(
+              canvasSize / 8,
+              (canvasSize * 6) / 8,
+              (canvasSize * 6) / 8,
+              canvasSize / 4
+            );
+            p5.fill(150, 150, 150);
+            p5.rect(
+              (canvasSize * 3) / 16,
+              (canvasSize * 13) / 16,
+              (canvasSize * 10) / 16,
+              10
+            );
+
+            p5.fill(50, 50, 255);
+            p5.rect(
+              (canvasSize * 3) / 16,
+              (canvasSize * 13) / 16,
+              (turn / leng) * ((canvasSize * 10) / 16),
+              10
+            );
+          }
           p5.fill(0);
           p5.textSize(32);
+
+          p5.fill(0, 50, 0);
+          p5.rect(canvasSize / 2 - 50, (canvasSize * 12) / 16 + 10, 100, 40);
+
+          p5.rect(canvasSize / 2 - 200, (canvasSize * 12) / 16 + 10, 100, 40);
+          p5.rect(canvasSize / 2 + 100, (canvasSize * 12) / 16 + 10, 100, 40);
+
+          p5.fill(255);
+          p5.text("Back", canvasSize / 2 - 150, (canvasSize * 12) / 16 + 40);
+          p5.text("Next", canvasSize / 2 + 150, (canvasSize * 12) / 16 + 40);
+          if (pause) {
+            p5.text("Play", canvasSize / 2, (canvasSize * 12) / 16 + 40);
+          } else {
+            p5.text("Pause", canvasSize / 2, (canvasSize * 12) / 16 + 40);
+          }
         }
 
         function doPhase(turn, text, mSize) {
+          p5.fill(0);
           p5.text(text, canvasSize / 2, 40 + (canvasSize * 7) / 8);
           let p1u = 0;
           let p2u = 0;
@@ -157,17 +190,25 @@ export default {
           p5.stroke("Blue");
           p5.text("Player 1", canvasSize / 16, 40);
           p5.text("Units: " + p1u, canvasSize / 16, 70);
-          p5.text("Gatherers: " + p1G, canvasSize / 16, 90);
-          p5.text("Attackers: " + p1A, canvasSize / 16, 110);
-          p5.text("Wood: " + turn.players[0].wood, canvasSize / 16, 140);
-          p5.text("Metal: " + turn.players[0].metal, canvasSize / 16, 160);
 
           p5.stroke("Red");
           p5.text("Player 2", (15 * canvasSize) / 16, 40);
           p5.text("Units: " + p2u, (15 * canvasSize) / 16, 70);
+
+          p5.stroke("yellow");
+          p5.text("Gatherers: " + p1G, canvasSize / 16, 90);
           p5.text("Gatherers: " + p2G, (15 * canvasSize) / 16, 90);
+
+          p5.stroke("purple");
+          p5.text("Attackers: " + p1A, canvasSize / 16, 110);
           p5.text("Attackers: " + p2A, (15 * canvasSize) / 16, 110);
+
+          p5.stroke("brown");
+          p5.text("Wood: " + turn.players[0].wood, canvasSize / 16, 140);
           p5.text("Wood: " + turn.players[1].wood, (15 * canvasSize) / 16, 140);
+
+          p5.stroke("grey");
+          p5.text("Metal: " + turn.players[0].metal, canvasSize / 16, 160);
           p5.text(
             "Metal: " + turn.players[1].metal,
             (15 * canvasSize) / 16,
@@ -179,9 +220,86 @@ export default {
         let turn = 0;
         let phase = 0;
         let ended = false;
+        let pause = false;
+        let tick = 0;
+        let timer = 0;
+
         p5.draw = () => {
+          p5.fill(0);
           p5.textSize(32);
           p5.textAlign(p5.CENTER);
+          timer++;
+
+          if (
+            p5.mouseIsPressed &&
+            timer > 10 &&
+            p5.mouseX < canvasSize / 2 + 50 &&
+            p5.mouseX > canvasSize / 2 - 50 &&
+            p5.mouseY > (canvasSize * 12) / 16 + 10 &&
+            p5.mouseY < (canvasSize * 12) / 16 + 50
+          ) {
+            timer = 0;
+            pause = !pause;
+            drawUi(turn + 1, game.turns.length, pause, false);
+          }
+
+          if (
+            p5.mouseIsPressed &&
+            timer > 10 &&
+            p5.mouseX < canvasSize / 2 - 100 &&
+            p5.mouseX > canvasSize / 2 - 200 &&
+            p5.mouseY > (canvasSize * 12) / 16 + 10 &&
+            p5.mouseY < (canvasSize * 12) / 16 + 50 &&
+            turn > 0
+          ) {
+            timer = 0;
+            turn--;
+            phase = 1;
+            drawUi(turn + 1, game.turns.length, pause, true);
+            doPhase(game.turns[turn].attack, "Attack", game.init.map.length);
+            p5.fill(0);
+            p5.textSize(32);
+            p5.noStroke();
+            p5.text(
+              turn + 1 + "/" + game.turns.length,
+              canvasSize / 2,
+              (canvasSize * 7) / 8
+            );
+            ended = false;
+            tick = 0;
+          }
+
+          if (
+            p5.mouseIsPressed &&
+            timer > 10 &&
+            p5.mouseX < canvasSize / 2 + 200 &&
+            p5.mouseX > canvasSize / 2 + 100 &&
+            p5.mouseY > (canvasSize * 12) / 16 + 10 &&
+            p5.mouseY < (canvasSize * 12) / 16 + 50 &&
+            turn + 1 < game.turns.length
+          ) {
+            timer = 0;
+            turn++;
+            phase = 1;
+            drawUi(turn + 1, game.turns.length, pause, true);
+            doPhase(game.turns[turn].attack, "Attack", game.init.map.length);
+            p5.fill(0);
+            p5.textSize(32);
+            p5.noStroke();
+            p5.text(
+              turn + 1 + "/" + game.turns.length,
+              canvasSize / 2,
+              (canvasSize * 7) / 8
+            );
+            tick = 0;
+          }
+
+          if (!pause) {
+            tick = p5.frameCount;
+          } else {
+            tick = 0;
+          }
+
           if (!update) {
             p5.clear();
             p5.image(bg, canvasSize / 8, 0);
@@ -189,10 +307,15 @@ export default {
             update = true;
           }
 
-          if (p5.frameCount % 30 == 1 && !ended) {
+          if (tick % 30 == 1 && !ended) {
             p5.image(bg, canvasSize / 8, 0);
-            drawUi();
-            p5.text(turn + 1, canvasSize / 2, (canvasSize * 7) / 8);
+            drawUi(turn + 1, game.turns.length, pause, true);
+            p5.fill(0);
+            p5.text(
+              turn + 1 + "/" + game.turns.length,
+              canvasSize / 2,
+              (canvasSize * 7) / 8
+            );
             let tcenter = "";
             let attribute = game.turns[turn];
             switch (phase) {
