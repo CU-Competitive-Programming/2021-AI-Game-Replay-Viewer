@@ -134,9 +134,31 @@ export default {
           }
         }
 
-        function doPhase(turn, text, mSize) {
+        function drawUnit(unit, x, y) {
+          let col = "";
+          if (unit.owner == 0) {
+            col = "blue";
+          } else {
+            col = "red";
+          }
+          p5.strokeWeight(3);
+          p5.stroke(col);
+          let fil = "";
+          switch (unit.type) {
+            case "gatherer":
+              fil = "yellow";
+
+              break;
+            case "attacker":
+              fil = "purple";
+              break;
+          }
+          p5.fill(fil);
+          p5.circle(x, y, 10);
+        }
+
+        function doPhase(turn, mSize) {
           p5.fill(0);
-          p5.text(text, canvasSize / 2, 40 + (canvasSize * 7) / 8);
           let p1u = 0;
           let p2u = 0;
           let p1A = 0;
@@ -145,44 +167,37 @@ export default {
           let p2G = 0;
           for (let i = 0; i < turn.units.length; i++) {
             const unit = turn.units[i];
-            let col = "";
-            if (unit.owner == 0) {
-              col = "blue";
-              p1u++;
-            } else {
-              col = "red";
-              p2u++;
+            if (unit.health > 0) {
+              if (unit.owner == 0) {
+                p1u++;
+              } else {
+                p2u++;
+              }
+              switch (unit.type) {
+                case "gatherer":
+                  if (unit.owner == 0) {
+                    p1G++;
+                  } else {
+                    p2G++;
+                  }
+                  break;
+                case "attacker":
+                  if (unit.owner == 0) {
+                    p1A++;
+                  } else {
+                    p2A++;
+                  }
+                  break;
+              }
+              const x =
+                (unit.position[0] * ((canvasSize * 6) / 8)) / mSize +
+                canvasSize / 8 +
+                (canvasSize * 6) / 8 / (2 * mSize);
+              const y =
+                (unit.position[1] * ((canvasSize * 6) / 8)) / mSize +
+                (canvasSize * 6) / 8 / (2 * mSize);
+              // drawUnit(unit, x, y);
             }
-            p5.strokeWeight(3);
-            p5.stroke(col);
-            let fil = "";
-            switch (unit.type) {
-              case "gatherer":
-                fil = "yellow";
-                if (unit.owner == 0) {
-                  p1G++;
-                } else {
-                  p2G++;
-                }
-                break;
-              case "attacker":
-                fil = "purple";
-                if (unit.owner == 0) {
-                  p1A++;
-                } else {
-                  p2A++;
-                }
-                break;
-            }
-            p5.fill(fil);
-            const x =
-              (unit.position[0] * ((canvasSize * 6) / 8)) / mSize +
-              canvasSize / 8 +
-              (canvasSize * 6) / 8 / (2 * mSize);
-            const y =
-              (unit.position[1] * ((canvasSize * 6) / 8)) / mSize +
-              (canvasSize * 6) / 8 / (2 * mSize);
-            p5.circle(x, y, 10);
           }
           p5.textSize(18);
           p5.fill(50);
@@ -218,7 +233,6 @@ export default {
 
         let update = false;
         let turn = 0;
-        let phase = 0;
         let ended = false;
         let pause = false;
         let tick = 0;
@@ -254,9 +268,8 @@ export default {
           ) {
             timer = 0;
             turn--;
-            phase = 1;
             drawUi(turn + 1, game.turns.length, pause, true);
-            doPhase(game.turns[turn].attack, "Attack", game.init.map.length);
+            doPhase(game.turns[turn].attack, game.init.map.length);
             p5.fill(0);
             p5.textSize(32);
             p5.noStroke();
@@ -280,9 +293,8 @@ export default {
           ) {
             timer = 0;
             turn++;
-            phase = 1;
             drawUi(turn + 1, game.turns.length, pause, true);
-            doPhase(game.turns[turn].attack, "Attack", game.init.map.length);
+            doPhase(game.turns[turn].attack, game.init.map.length);
             p5.fill(0);
             p5.textSize(32);
             p5.noStroke();
@@ -307,8 +319,52 @@ export default {
             update = true;
           }
 
-          if (tick % 30 == 1 && !ended) {
+          if (!pause && !ended) {
+            const poss = [];
             p5.image(bg, canvasSize / 8, 0);
+            const mSize = game.init.map.length;
+            for (let i = 0; i < game.turns[turn].move.units.length; i++) {
+              const unit = game.turns[turn].move.units[i];
+              let found = false;
+              for (let j = 0; j < poss.length; j++) {
+                if (
+                  poss[j][0] == unit.position[0] &&
+                  poss[j][1] == unit.position[1]
+                ) {
+                  found = true;
+                }
+              }
+              console.log(poss.length);
+              if (!found) {
+                poss.push(unit.position);
+                const newx = game.turns[turn].collect.units[i].position[0];
+                const newy = game.turns[turn].collect.units[i].position[1];
+                const nx =
+                  (newx * ((canvasSize * 6) / 8)) / mSize +
+                  canvasSize / 8 +
+                  (canvasSize * 6) / 8 / (2 * mSize);
+                const ny =
+                  (newy * ((canvasSize * 6) / 8)) / mSize +
+                  (canvasSize * 6) / 8 / (2 * mSize);
+                const ox =
+                  (unit.position[0] * ((canvasSize * 6) / 8)) / mSize +
+                  canvasSize / 8 +
+                  (canvasSize * 6) / 8 / (2 * mSize);
+                const oy =
+                  (unit.position[1] * ((canvasSize * 6) / 8)) / mSize +
+                  (canvasSize * 6) / 8 / (2 * mSize);
+                let ttick = tick;
+                if (tick % 30 == 0 || tick % 30 == 1) {
+                  ttick = 29;
+                }
+                const x = ((ttick % 30) * (nx - ox)) / 30 + ox;
+                const y = ((ttick % 30) * (ny - oy)) / 30 + oy;
+                drawUnit(unit, x, y);
+              }
+            }
+          }
+
+          if (tick % 30 == 1 && !ended) {
             drawUi(turn + 1, game.turns.length, pause, true);
             p5.fill(0);
             p5.text(
@@ -316,37 +372,13 @@ export default {
               canvasSize / 2,
               (canvasSize * 7) / 8
             );
-            let tcenter = "";
-            let attribute = game.turns[turn];
-            switch (phase) {
-              case 0:
-                tcenter = "Attack";
-                attribute = game.turns[turn].attack;
-                break;
-              case 1:
-                tcenter = "Move";
-                attribute = game.turns[turn].move;
-                break;
-              case 2:
-                tcenter = "Collect";
-                attribute = game.turns[turn].collect;
-                break;
-              case 3:
-                tcenter = "Spawn";
-                attribute = game.turns[turn].spawn;
-                break;
-            }
-            doPhase(attribute, tcenter, game.init.map.length);
-            phase++;
-            if (phase == 4) {
-              turn++;
-              phase = 0;
-              if (turn == game.turns.length) {
-                ended = true;
-                p5.noStroke();
-                p5.fill(0);
-                p5.text("Game Over", canvasSize / 2, 80 + (canvasSize * 7) / 8);
-              }
+            doPhase(game.turns[turn].attack, game.init.map.length);
+            turn++;
+            if (turn == game.turns.length) {
+              ended = true;
+              p5.noStroke();
+              p5.fill(0);
+              p5.text("Game Over", canvasSize / 2, 40 + (canvasSize * 7) / 8);
             }
           }
         };
