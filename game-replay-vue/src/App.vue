@@ -42,6 +42,7 @@ export default {
       console.log(game);
       const script = (p5) => {
         const canvasSize = window.innerHeight - 20;
+        const canvasSizex = canvasSize + canvasSize / 4;
         function mapGen(map, b, p5) {
           console.log("mapping");
           const { fill, square } = p5;
@@ -79,7 +80,7 @@ export default {
         }
         let bg;
         p5.setup = () => {
-          const canvas = p5.createCanvas(canvasSize, canvasSize);
+          const canvas = p5.createCanvas(canvasSizex, canvasSize);
           bg = p5.createGraphics((canvasSize * 6) / 8, (canvasSize * 6) / 8);
           mapGen(game.init.map, bg, p5);
           canvas.parent("p5Canvas");
@@ -91,27 +92,32 @@ export default {
           if (sides) {
             const gr = p5.color(200, 200, 200);
             p5.fill(gr);
-            p5.rect(0, 0, canvasSize / 8, canvasSize);
-            p5.rect((canvasSize * 7) / 8, 0, canvasSize / 8, canvasSize);
+            p5.rect(0, 0, (2 * canvasSizex) / 10, canvasSize);
             p5.rect(
-              canvasSize / 8,
+              (8 * canvasSizex) / 10,
+              0,
+              (2 * canvasSizex) / 10,
+              canvasSize
+            );
+            p5.rect(
+              (2 * canvasSizex) / 10,
               (canvasSize * 6) / 8,
-              (canvasSize * 6) / 8,
+              (6 * canvasSizex) / 10,
               canvasSize / 4
             );
             p5.fill(150, 150, 150);
             p5.rect(
-              (canvasSize * 3) / 16,
-              (canvasSize * 13) / 16,
-              (canvasSize * 10) / 16,
+              (canvasSizex * 2) / 10,
+              (canvasSize * 7) / 8,
+              (canvasSizex * 6) / 10,
               10
             );
 
             p5.fill(50, 50, 255);
             p5.rect(
-              (canvasSize * 3) / 16,
-              (canvasSize * 13) / 16,
-              (turn / leng) * ((canvasSize * 10) / 16),
+              (canvasSizex * 2) / 10,
+              (canvasSize * 7) / 8,
+              (turn / leng) * ((canvasSizex * 6) / 10),
               10
             );
           }
@@ -119,18 +125,17 @@ export default {
           p5.textSize(32);
 
           p5.fill(0, 50, 0);
-          p5.rect(canvasSize / 2 - 50, (canvasSize * 12) / 16 + 10, 100, 40);
-
-          p5.rect(canvasSize / 2 - 200, (canvasSize * 12) / 16 + 10, 100, 40);
-          p5.rect(canvasSize / 2 + 100, (canvasSize * 12) / 16 + 10, 100, 40);
+          p5.rect(canvasSizex / 2 - 50, (canvasSize * 12) / 16 + 10, 100, 40);
+          p5.rect(canvasSizex / 2 - 200, (canvasSize * 12) / 16 + 10, 100, 40);
+          p5.rect(canvasSizex / 2 + 100, (canvasSize * 12) / 16 + 10, 100, 40);
 
           p5.fill(255);
-          p5.text("Back", canvasSize / 2 - 150, (canvasSize * 12) / 16 + 40);
-          p5.text("Next", canvasSize / 2 + 150, (canvasSize * 12) / 16 + 40);
+          p5.text("Back", canvasSizex / 2 - 150, (canvasSize * 12) / 16 + 40);
+          p5.text("Next", canvasSizex / 2 + 150, (canvasSize * 12) / 16 + 40);
           if (pause) {
-            p5.text("Play", canvasSize / 2, (canvasSize * 12) / 16 + 40);
+            p5.text("Play", canvasSizex / 2, (canvasSize * 12) / 16 + 40);
           } else {
-            p5.text("Pause", canvasSize / 2, (canvasSize * 12) / 16 + 40);
+            p5.text("Pause", canvasSizex / 2, (canvasSize * 12) / 16 + 40);
           }
         }
 
@@ -189,44 +194,36 @@ export default {
                   }
                   break;
               }
-              const x =
-                (unit.position[0] * ((canvasSize * 6) / 8)) / mSize +
-                canvasSize / 8 +
-                (canvasSize * 6) / 8 / (2 * mSize);
-              const y =
-                (unit.position[1] * ((canvasSize * 6) / 8)) / mSize +
-                (canvasSize * 6) / 8 / (2 * mSize);
-              // drawUnit(unit, x, y);
             }
           }
           p5.textSize(18);
           p5.fill(50);
           p5.strokeWeight(1);
           p5.stroke("Blue");
-          p5.text("Player 1", canvasSize / 16, 40);
-          p5.text("Units: " + p1u, canvasSize / 16, 70);
+          p5.text("Player 1", canvasSizex / 10, 40);
+          p5.text("Units: " + p1u, canvasSizex / 10, 70);
 
           p5.stroke("Red");
-          p5.text("Player 2", (15 * canvasSize) / 16, 40);
-          p5.text("Units: " + p2u, (15 * canvasSize) / 16, 70);
+          p5.text("Player 2", (9 * canvasSizex) / 10, 40);
+          p5.text("Units: " + p2u, (9 * canvasSizex) / 10, 70);
 
           p5.stroke("yellow");
-          p5.text("Gatherers: " + p1G, canvasSize / 16, 90);
-          p5.text("Gatherers: " + p2G, (15 * canvasSize) / 16, 90);
+          p5.text("Gatherers: " + p1G, canvasSizex / 10, 90);
+          p5.text("Gatherers: " + p2G, (9 * canvasSizex) / 10, 90);
 
           p5.stroke("purple");
-          p5.text("Attackers: " + p1A, canvasSize / 16, 110);
-          p5.text("Attackers: " + p2A, (15 * canvasSize) / 16, 110);
+          p5.text("Attackers: " + p1A, canvasSizex / 10, 110);
+          p5.text("Attackers: " + p2A, (9 * canvasSizex) / 10, 110);
 
           p5.stroke("brown");
-          p5.text("Wood: " + turn.players[0].wood, canvasSize / 16, 140);
-          p5.text("Wood: " + turn.players[1].wood, (15 * canvasSize) / 16, 140);
+          p5.text("Wood: " + turn.players[0].wood, canvasSizex / 10, 140);
+          p5.text("Wood: " + turn.players[1].wood, (9 * canvasSizex) / 10, 140);
 
           p5.stroke("grey");
-          p5.text("Metal: " + turn.players[0].metal, canvasSize / 16, 160);
+          p5.text("Metal: " + turn.players[0].metal, canvasSizex / 10, 160);
           p5.text(
             "Metal: " + turn.players[1].metal,
-            (15 * canvasSize) / 16,
+            (9 * canvasSizex) / 10,
             160
           );
         }
@@ -247,8 +244,8 @@ export default {
           if (
             p5.mouseIsPressed &&
             timer > 10 &&
-            p5.mouseX < canvasSize / 2 + 50 &&
-            p5.mouseX > canvasSize / 2 - 50 &&
+            p5.mouseX < canvasSizex / 2 + 50 &&
+            p5.mouseX > canvasSizex / 2 - 50 &&
             p5.mouseY > (canvasSize * 12) / 16 + 10 &&
             p5.mouseY < (canvasSize * 12) / 16 + 50
           ) {
@@ -260,8 +257,8 @@ export default {
           if (
             p5.mouseIsPressed &&
             timer > 10 &&
-            p5.mouseX < canvasSize / 2 - 100 &&
-            p5.mouseX > canvasSize / 2 - 200 &&
+            p5.mouseX < canvasSizex / 2 - 100 &&
+            p5.mouseX > canvasSizex / 2 - 200 &&
             p5.mouseY > (canvasSize * 12) / 16 + 10 &&
             p5.mouseY < (canvasSize * 12) / 16 + 50 &&
             turn > 0
@@ -275,8 +272,8 @@ export default {
             p5.noStroke();
             p5.text(
               turn + 1 + "/" + game.turns.length,
-              canvasSize / 2,
-              (canvasSize * 7) / 8
+              canvasSizex / 2,
+              (canvasSize * 15) / 16
             );
             ended = false;
             tick = 0;
@@ -285,8 +282,8 @@ export default {
           if (
             p5.mouseIsPressed &&
             timer > 10 &&
-            p5.mouseX < canvasSize / 2 + 200 &&
-            p5.mouseX > canvasSize / 2 + 100 &&
+            p5.mouseX < canvasSizex / 2 + 200 &&
+            p5.mouseX > canvasSizex / 2 + 100 &&
             p5.mouseY > (canvasSize * 12) / 16 + 10 &&
             p5.mouseY < (canvasSize * 12) / 16 + 50 &&
             turn + 1 < game.turns.length
@@ -300,8 +297,8 @@ export default {
             p5.noStroke();
             p5.text(
               turn + 1 + "/" + game.turns.length,
-              canvasSize / 2,
-              (canvasSize * 7) / 8
+              canvasSizex / 2,
+              (canvasSize * 15) / 16
             );
             tick = 0;
           }
@@ -314,14 +311,14 @@ export default {
 
           if (!update) {
             p5.clear();
-            p5.image(bg, canvasSize / 8, 0);
+            p5.image(bg, (2 * canvasSizex) / 10, 0);
             console.log("updated");
             update = true;
           }
 
           if (!pause && !ended) {
             const poss = [];
-            p5.image(bg, canvasSize / 8, 0);
+            p5.image(bg, (2 * canvasSizex) / 10, 0);
             const mSize = game.init.map.length;
             for (let i = 0; i < game.turns[turn].move.units.length; i++) {
               const unit = game.turns[turn].move.units[i];
@@ -334,22 +331,21 @@ export default {
                   found = true;
                 }
               }
-              console.log(poss.length);
               if (!found) {
                 poss.push(unit.position);
                 const newx = game.turns[turn].collect.units[i].position[0];
                 const newy = game.turns[turn].collect.units[i].position[1];
                 const nx =
-                  (newx * ((canvasSize * 6) / 8)) / mSize +
-                  canvasSize / 8 +
-                  (canvasSize * 6) / 8 / (2 * mSize);
+                  (newx * ((canvasSizex * 6) / 10)) / mSize +
+                  (2 * canvasSizex) / 10 +
+                  (canvasSizex * 6) / 10 / (2 * mSize);
                 const ny =
                   (newy * ((canvasSize * 6) / 8)) / mSize +
                   (canvasSize * 6) / 8 / (2 * mSize);
                 const ox =
-                  (unit.position[0] * ((canvasSize * 6) / 8)) / mSize +
-                  canvasSize / 8 +
-                  (canvasSize * 6) / 8 / (2 * mSize);
+                  (unit.position[0] * ((canvasSizex * 6) / 10)) / mSize +
+                  (2 * canvasSizex) / 10 +
+                  (canvasSizex * 6) / 10 / (2 * mSize);
                 const oy =
                   (unit.position[1] * ((canvasSize * 6) / 8)) / mSize +
                   (canvasSize * 6) / 8 / (2 * mSize);
@@ -369,8 +365,8 @@ export default {
             p5.fill(0);
             p5.text(
               turn + 1 + "/" + game.turns.length,
-              canvasSize / 2,
-              (canvasSize * 7) / 8
+              canvasSizex / 2,
+              (canvasSize * 15) / 16
             );
             doPhase(game.turns[turn].attack, game.init.map.length);
             turn++;
@@ -378,7 +374,11 @@ export default {
               ended = true;
               p5.noStroke();
               p5.fill(0);
-              p5.text("Game Over", canvasSize / 2, 40 + (canvasSize * 7) / 8);
+              p5.text(
+                "Game Over",
+                canvasSizex / 2,
+                40 + (canvasSize * 15) / 16
+              );
             }
           }
         };
